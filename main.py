@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, MetaData, Table, Column, String, Integer, Date
+from sqlalchemy import create_engine, MetaData, Table, Column, String, Integer, Date, ForeignKey
 
 engine = create_engine('postgresql+psycopg2://app_user:app_password@localhost:5432/app_db', echo=True)
 
@@ -18,14 +18,20 @@ cars = Table(
   Column('id', Integer, primary_key=True),
   Column('make', String),
   Column('model', String),
-  Column('year', Date)
+  Column('year', Integer),
+  Column('owner', Integer, ForeignKey('people.id'), unique=True)
 )
 
 meta.create_all(engine)
 
 conn = engine.connect()
 
-insert_statement = people.insert().values(name='Adrian', age=26)
-result = conn.execute(insert_statement)
+statement = cars.insert().values([
+    {'make': 'Ford', 'model': 'Mustang', 'year': 1969, 'owner': 1},
+    {'make': 'Opel', 'model': 'Astra', 'year': 2005, 'owner': 3},
+    {'make': 'Toyota', 'model': 'Camry', 'year': 2024, 'owner': 4},
+  ]
+)
+result = conn.execute(statement)
 
 conn.commit()
